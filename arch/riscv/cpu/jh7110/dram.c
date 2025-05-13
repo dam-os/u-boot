@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (C) 2022 StarFive Technology Co., Ltd.
- * Author: Yanhong Wang <yanhong.wang@starfivetech.com>
+ * Copyright (C) 2018, Bin Meng <bmeng.cn@gmail.com>
  */
 
 #include <fdtdec.h>
@@ -10,14 +9,39 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+__weak int board_ddr_size(void)
+{
+	return 0;
+}
+
 int dram_init(void)
 {
-	return fdtdec_setup_mem_size_base();
+	int ret;
+	phys_size_t size;
+
+	ret = fdtdec_setup_mem_size_base();
+	if (ret)
+		return ret;
+
+	/* resize ddr size */
+	size = board_ddr_size();
+	if (size > 0)
+		gd->ram_size = size << 30;
+
+	return 0;
 }
 
 int dram_init_banksize(void)
 {
-	return fdtdec_setup_memory_banksize();
+	int ret;
+
+	ret = fdtdec_setup_memory_banksize();
+	if (ret)
+		return ret;
+
+	gd->bd->bi_dram[0].size = gd->ram_size;
+
+	return 0;
 }
 
 phys_addr_t board_get_usable_ram_top(phys_size_t total_size)

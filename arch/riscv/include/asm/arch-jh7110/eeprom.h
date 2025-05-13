@@ -11,6 +11,7 @@
 
 u8 get_pcb_revision_from_eeprom(void);
 u32 get_ddr_size_from_eeprom(void);
+int get_data_from_eeprom(int offset, int len, unsigned char *data);
 
 /**
  * get_mmc_size_from_eeprom() - read eMMC size from EEPROM
